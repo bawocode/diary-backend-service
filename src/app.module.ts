@@ -4,6 +4,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DiaryModule } from './diary/diary.module';
 import { UserModule } from './user/user.module';
+import { ConfigModule } from '@nestjs/config';
+import config from './config/orm.config';
 
 @Module({
   imports: [
@@ -12,12 +14,12 @@ import { UserModule } from './user/user.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
-      port: 5436,
+      port: 5432,
       username: 'postgres',
-      password: 'pass123',
+      password: 'postgres',
       database: 'postgres',
-      autoLoadEntities: true,
       synchronize: true,
+      autoLoadEntities: true,
     }),
   ],
   controllers: [AppController],

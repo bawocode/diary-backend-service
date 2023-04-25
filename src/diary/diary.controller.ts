@@ -1,34 +1,43 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { DiaryService } from './diary.service';
 import { CreateDiaryDto } from './dto/create-diary.dto';
 import { UpdateDiaryDto } from './dto/update-diary.dto';
+import { Diary } from './entities/diary.entity';
 
 @Controller('diary')
 export class DiaryController {
   constructor(private readonly diaryService: DiaryService) {}
 
-  @Post()
+  @Post('create-diary')
   create(@Body() createDiaryDto: CreateDiaryDto) {
     return this.diaryService.create(createDiaryDto);
   }
 
-  @Get()
+  @Get('get-all-diaries')
   findAll() {
-    return this.diaryService.findAll();
+    return this.diaryService.findAllDiary();
   }
 
-  @Get(':id')
+  @Get('get-diary/:id')
   findOne(@Param('id') id: string) {
-    return this.diaryService.findOne(+id);
+    return this.diaryService.findDiary(id);
   }
 
-  @Patch(':id')
+  @Patch('update-diary/:id')
   update(@Param('id') id: string, @Body() updateDiaryDto: UpdateDiaryDto) {
-    return this.diaryService.update(+id, updateDiaryDto);
+    return this.diaryService.updateDiary(id, updateDiaryDto);
   }
 
-  @Delete(':id')
+  @Delete('delete-diary/:id')
   remove(@Param('id') id: string) {
-    return this.diaryService.remove(+id);
+    return this.diaryService.deleteDiary(id);
   }
 }

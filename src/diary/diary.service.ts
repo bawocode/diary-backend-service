@@ -1,26 +1,63 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateDiaryDto } from './dto/create-diary.dto';
 import { UpdateDiaryDto } from './dto/update-diary.dto';
+import { Diary } from './entities/diary.entity';
 
 @Injectable()
 export class DiaryService {
-  create(createDiaryDto: CreateDiaryDto) {
-    return 'This action adds a new diary';
+  constructor(
+    @InjectRepository(Diary)
+    private diaryService: Repository<Diary>,
+  ) {}
+  async create(createDiaryDto: CreateDiaryDto): Promise<Diary> {
+    const diary = this.diaryService.create(createDiaryDto);
+    const date = new Date().toISOString();
+    diary.dateCreated = date;
+    diary.dateModified = date;
+
+    return await this.diaryService.save(diary);
   }
 
-  findAll() {
-    return `This action returns all diary`;
+  async findAllDiary(): Promise<Diary[]> {
+    return await this.diaryService.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} diary`;
+  async findDiary(id: string): Promise<Diary> {
+    const diary = await this.diaryService.findOne({
+      where: { id },
+    });
+    if (!diary) {
+      throw new HttpException(
+        `Diary with id #${id} can not be found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return diary;
   }
 
-  update(id: number, updateDiaryDto: UpdateDiaryDto) {
-    return `This action updates a #${id} diary`;
+  async updateDiary(
+    id: string,
+    updateDiaryDto: UpdateDiaryDto,
+  ): Promise<Diary> {
+    const diary = await this.diaryService.findOne({
+      where: { id },
+    });
+    if (!diary) {
+      throw new NotFoundException('Diary not found');
+    }
+    diary.dateModified = new Date().toISOString();
+    Object.assign(diary, updateDiaryDto);
+    return this.diaryService.save(diary);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} diary`;
+  deleteDiary(id: string) {
+    this.diaryService.delete(id);
   }
 }
